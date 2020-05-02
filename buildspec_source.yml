@@ -1,0 +1,26 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+       - echo Get app name
+       - App_Name=`aws ssm get-parameter --name "devsecops_App_Name" | jq .Parameter.Value | sed 's/\"//g'`
+       - commit_id_key="${App_Name}_LastCommitId"
+  build:
+    commands:
+       - echo Start build source on `date`
+       - cd $CODEBUILD_SRC_DIR_APPSOURCE
+       - LastComitId=`git rev-parse --short HEAD`
+  post_build:
+    commands:
+       - aws ssm put-parameter --name $commit_id_key --type "String" --value "$LastComitId" --overwrite
+       - echo Build completed on `date`
+artifacts:
+  base-directory: $CODEBUILD_SRC_DIR
+  files:
+    - '**/*'
+  secondary-artifacts:
+    APPSOURCE:
+      base-directory: $CODEBUILD_SRC_DIR_APPSOURCE
+      files: 
+        - '**/*'
