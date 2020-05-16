@@ -13,7 +13,8 @@ phases:
 
   build:
     commands:
-      - result=$(mvn clean sonar:sonar -Dsonar.projectKey=$sonar_project_key -Dsonar.host.url=$sonar_host_url -Dsonar.login=$sonar_username -Dsonar.password=$sonar_password)
+      - cp ./settings.xml /root/.m2/settings.xml
+      - result=$(mvn sonar:sonar -Dsonar.projectKey=$sonar_project_key -Dsonar.host.url=$sonar_host_url -Dsonar.login=$sonar_username -Dsonar.password=$sonar_password)
       - echo $result
 
   post_build:
