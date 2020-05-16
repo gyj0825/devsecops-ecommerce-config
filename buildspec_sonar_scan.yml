@@ -15,7 +15,7 @@ phases:
     commands:
       - cp ./settings.xml /root/.m2/settings.xml
       - mvn install
-      - mvn clean sonar:sonar -Dsonar.projectKey=$sonar_project_key -Dsonar.host.url=$sonar_host_url -Dsonar.login=$sonar_username -Dsonar.password=$sonar_password -Dsonar.branch.name=develop
+      - mvn clean sonar:sonar -Dsonar.projectKey=$sonar_project_key -Dsonar.host.url=$sonar_host_url -Dsonar.login=$sonar_username -Dsonar.password=$sonar_password
       - echo $result
 
   post_build:
