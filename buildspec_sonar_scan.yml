@@ -15,12 +15,13 @@ phases:
     commands:
       - cp ./settings.xml /root/.m2/settings.xml
       - mvn install
-      - mvn clean sonar:sonar -Dsonar.projectKey=$sonar_project_key -Dsonar.host.url=$sonar_host_url -Dsonar.login=$sonar_username -Dsonar.password=$sonar_password
+      - mvn clean sonar:sonar -Dsonar.projectKey=$sonar_project_key -Dsonar.host.url=$sonar_host_url -Dsonar.login=$sonar_username -Dsonar.password=$sonar_password -Dsonar.branch.name=develop
       - echo $result
 
   post_build:
     commands:
       - sonar_link=$(echo $result | egrep -o "you can browse http://[^, ]+")
+      - echo $sonar_link
       - sonar_task_id=$(echo $result | egrep -o "task\?id=[^ ]+" | cut -d'=' -f2)
       - | # Allow time for SonarQube Background Task to complete
         stat="PENDING";
@@ -35,16 +36,9 @@ phases:
         done
       - sonar_analysis_id=$(curl -u "$sonar_username:$sonar_password" $sonar_host_url/api/ce/task\?id=$sonar_task_id | jq -r '.task.analysisId')
       - quality_status=$(curl -u "$sonar_username:$sonar_password" $sonar_host_url/api/qualitygates/project_status\?analysisId=$sonar_analysis_id | jq -r '.projectStatus.status')
+      - echo $quality_status
       - |
-        if [ $quality_status = "ERROR" ]; then
-          content=$(echo "SonarQube analysis complete. Quality Gate Failed.\n\nTo see why, $sonar_link");
-          echo $content
-          exit 1
-        elif [ $quality_status = "OK" ]; then
-          content=$(echo "SonarQube analysis complete. Quality Gate Passed.\n\nFor details, $sonar_link");
-          echo $$content
-        else
-          content="An unexpected error occurred while attempting to analyze with SonarQube.";
-          echo $content
-          exit 1
-        fi
+        if [ $quality_status != "OK" ]; then
+          echo "SonarQube analysis Failed or Quality Gate Failed.\n\nFor details, $sonar_link");
+          exit "Quality Gate Status: $quality_status"
+        fi 
