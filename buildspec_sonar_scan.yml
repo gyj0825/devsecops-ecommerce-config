@@ -14,6 +14,7 @@ phases:
   build:
     commands:
       - cp ./settings.xml /root/.m2/settings.xml
+      - mvn install
       - result=$(mvn sonar:sonar -Dsonar.projectKey=$sonar_project_key -Dsonar.host.url=$sonar_host_url -Dsonar.login=$sonar_username -Dsonar.password=$sonar_password)
       - echo $result
 
@@ -38,6 +39,6 @@ phases:
       - echo $quality_status
       - |
         if [ $quality_status != "OK" ]; then
-          echo "SonarQube analysis Failed or Quality Gate Failed.\n\nFor details, $sonar_link");
+          echo "SonarQube analysis Failed or Quality Gate Failed.\n\nFor details, $sonar_link"
           exit "Quality Gate Status: $quality_status"
         fi 

@@ -3,4 +3,5 @@ ignored:
   - DL3025 
 
 trustedRegistries: 
+  - private.registry.com
   - 180996607073.dkr.ecr.cn-northwest-1.amazonaws.com.cn
